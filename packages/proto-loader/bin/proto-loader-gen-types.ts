@@ -43,6 +43,7 @@ type GeneratorOptions = Protobuf.IParseOptions & Protobuf.IConversionOptions & {
   outDir: string;
   verbose?: boolean;
   includeComments?: boolean;
+  importWithExtension?: boolean,
   inputTemplate: string;
   outputTemplate: string;
   inputBranded: boolean;
@@ -153,7 +154,7 @@ function getImportLine(dependency: Protobuf.Type | Protobuf.Enum | Protobuf.Serv
       throw new Error('Invalid object passed to getImportLine');
     }
   }
-  return `import type { ${importedTypes} } from '${filePath}';`
+  return `import type { ${importedTypes} } from '${filePath}${options.importWithExtension ? ".ts" : ""}';`
 }
 
 function getChildMessagesAndEnums(namespace: Protobuf.NamespaceBase): (Protobuf.Type | Protobuf.Enum)[] {
@@ -863,6 +864,7 @@ async function runScript() {
     .option('json', boolDefaultFalseOption)
     .boolean('verbose')
     .option('includeComments', boolDefaultFalseOption)
+    .option('importWithExtension', { boolean: true, default: true })
     .option('includeDirs', {
       normalize: true,
       array: true,
@@ -909,6 +911,7 @@ async function runScript() {
       oneofs: 'Output virtual oneof fields set to the present field\'s name',
       json: 'Represent Infinity and NaN as strings in float fields. Also decode google.protobuf.Any automatically',
       includeComments: 'Generate doc comments from comments in the original files',
+      importWithExtension: 'Explicitly import files with the `.ts` extension.',
       includeDirs: 'Directories to search for included files',
       outDir: 'Directory in which to output files',
       grpcLib: 'The gRPC implementation library that these types will be used with. If not provided, some types will not be generated',
